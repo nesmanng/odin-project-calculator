@@ -10,6 +10,7 @@ const decimalButton = document.querySelector('.decimal-button');
 let firstNumber = null;
 let secondNumber = null;
 let selectedOperand = null;
+let previousOperand = null;
 const maxDigits = 9;
 let displayValue = '0';
 displayOutput.textContent = displayValue;
@@ -99,30 +100,49 @@ function onClickNumberButton(e) {
     } 
     
     else {
-        displayValue = e.target.textContent;
-        selectedOperand = null;
-        secondNumber = displayValue;
+        if (secondNumber === null) {
+            displayValue = e.target.textContent;
+            secondNumber = displayValue;
+        } 
+        
+        else {
+            displayValue += e.target.textContent;
+            secondNumber = displayValue;
+        }
         displayOutput.textContent = displayValue;
     }
 }
 
 function onClickOperandButton(e) {
-    if (firstNumber !== null && secondNumber !== null) {
-        onClickEqualsButton();
+
+    if (selectedOperand === null) {
+        selectedOperand = e.target.textContent;
+        firstNumber = displayValue;
+        displayOutput.textContent = displayValue 
+        displayInput.textContent = displayValue + ' ' + selectedOperand;
+        previousOperand = selectedOperand;
     }
 
     else {
-        displayOutput.textContent = displayValue;
-    }
+        selectedOperand = e.target.textContent;
+        if (firstNumber !== null && secondNumber !== null) {
+            onClickEqualsButton();
+            previousOperand = selectedOperand;
+        }
 
-    selectedOperand = e.target.textContent;
-    displayInput.textContent = displayValue + ' ' + selectedOperand;
+        else {
+            displayOutput.textContent = displayValue;
+            previousOperand = selectedOperand;
+        }
+        displayInput.textContent = displayValue + ' ' + selectedOperand;
+    }
 }
 
 function onClickAllClearButton() {
     firstNumber = null;
     secondNumber = null;
     selectedOperand = null;
+    previousOperand = null;
     displayValue = '0';
     displayOutput.textContent = displayValue;
     displayInput.textContent = '';
@@ -145,32 +165,33 @@ function onClickDeleteButton() {
 function onClickEqualsButton (){
     // If no operand selected, display current number 
     if (firstNumber !== null && secondNumber !== null) {
-        let result = calculate(selectedOperand, firstNumber, secondNumber);
+        let result = calculate(previousOperand, firstNumber, secondNumber);
         firstNumber = result;
         displayValue = result;
         secondNumber = null;
-        displayOutput.textContent = displayValue;
     }
 
     else if (firstNumber == null && secondNumber == null) {
         displayValue = '0';
-        displayOutput.textContent = displayValue;
     }
 
     else {
         secondNumber = firstNumber;
-        let result = calculate(selectedOperand, firstNumber, secondNumber);
+        let result = calculate(previousOperand, firstNumber, secondNumber);
         firstNumber = result;
         displayValue = result;
         secondNumber = null;
-        displayOutput.textContent = displayValue;
     }
+
+    displayOutput.textContent = displayValue;
+    displayInput.textContent = '';
+    console.log(displayOutput.textContent);
 }
 
 function onClickDecimalButton() {
     if (!displayValue.includes('.')) {
         displayValue += '.';
-        currentNumber = displayValue;
+        firstNumberNumber = displayValue;
     }
 
     else {

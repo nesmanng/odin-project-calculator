@@ -77,10 +77,13 @@ button.operand-shortcut {
     color: black;
 }
 
-button.operand {
+button.operand,
+button.equals-button {
     background-color: orange;
     color: white;
 }
+
+
 
 button.number {
     background-color: rgba(37, 36, 36, 0.452);
