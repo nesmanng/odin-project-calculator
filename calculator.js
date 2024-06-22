@@ -65,6 +65,7 @@ decimalButton.addEventListener('mousedown', handleButtonMouseDown);
 decimalButton.addEventListener('mouseup', handleButtonMouseUp);
 decimalButton.addEventListener('click', onClickDecimalButton);
 
+document.addEventListener('keydown', handleKeyDown);
 
 function calculate(operand, num1, num2) {
     num1 = parseFloat(num1);
@@ -250,4 +251,44 @@ function onClickDecimalButton() {
 function onClickDivideByHundredButton() {
     displayValue = parseFloat(displayValue) / 100;
     displayOutput.textContent = displayValue;
+}
+
+function handleKeyDown(e) {
+    const key = e.key;
+
+    // Map the pressed key to the corresponding button
+    const buttonMap = {
+        '0': 'button[data-value="0"]',
+        '1': 'button[data-value="1"]',
+        '2': 'button[data-value="2"]',
+        '3': 'button[data-value="3"]',
+        '4': 'button[data-value="4"]',
+        '5': 'button[data-value="5"]',
+        '6': 'button[data-value="6"]',
+        '7': 'button[data-value="7"]',
+        '8': 'button[data-value="8"]',
+        '9': 'button[data-value="9"]',
+        '+': 'button[data-value="+"]',
+        '-': 'button[data-value="-"]',
+        '*': 'button[data-value="x"]',
+        '/': 'button[data-value="÷"]',
+        '%': 'button.divide-by-hundred-button',
+        '.': 'button.decimal-button',
+        '=': 'button.equals-button',
+        'Backspace': 'button.delete-button',
+        'Escape': 'button.all-clear-button'
+    };
+
+    const buttonSelector = buttonMap[key];
+
+    if (buttonSelector) {
+        const button = document.querySelector(buttonSelector);
+        if (button) {
+            button.click();
+            button.classList.add('active');
+            setTimeout(() => {
+                button.classList.remove('active');
+            }, 100);
+        }
+    }
 }
