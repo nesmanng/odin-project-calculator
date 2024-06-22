@@ -4,6 +4,7 @@ const numberButtons = document.querySelectorAll('.number');
 const operandButtons = document.querySelectorAll('.operand');
 const allClearButton = document.querySelector('.all-clear-button');
 const deleteButton = document.querySelector('.delete-button');
+const divideByHundredButton = document.querySelector('.divide-by-hundred-button');
 const equalsButton = document.querySelector('.equals-button');
 const decimalButton = document.querySelector('.decimal-button');
 
@@ -11,6 +12,7 @@ let firstNumber = null;
 let secondNumber = null;
 let selectedOperand = null;
 let previousOperand = null;
+let equalsButtonClicked = false;
 const maxDigits = 9;
 let displayValue = '0';
 displayOutput.textContent = displayValue;
@@ -48,6 +50,11 @@ deleteButton.addEventListener('mousedown', handleButtonMouseDown);
 deleteButton.addEventListener('mouseup', handleButtonMouseUp);
 deleteButton.addEventListener('click', onClickDeleteButton);
 
+// Event listener for % button
+divideByHundredButton.addEventListener('mousedown', handleButtonMouseDown);
+divideByHundredButton.addEventListener('mouseup', handleButtonMouseUp);
+divideByHundredButton.addEventListener('click', onClickDivideByHundredButton);
+
 // Event listener for equals button
 equalsButton.addEventListener('mousedown', handleButtonMouseDown);
 equalsButton.addEventListener('mouseup', handleButtonMouseUp);
@@ -63,6 +70,7 @@ function calculate(operand, num1, num2) {
     num1 = parseFloat(num1);
     num2 = parseFloat(num2);
     let result = '';
+    
     switch (operand) {
         case '+':
             result = num1 + num2;
@@ -74,15 +82,37 @@ function calculate(operand, num1, num2) {
             result = num1 * num2;
             break;
         case '÷':
+            if (num2 === 0) {
+                return "Error";
+            }
             result = num1 / num2;
             break;
         default:
             break;
     }
+    
+    // Convert the result to a string and limit it to maxDigits
+    result = result.toString();
+    if (result.includes('.')) {
+        // If the result contains a decimal point, limit the total number of digits
+        if (result.length > maxDigits) {
+            result = result.slice(0, maxDigits);
+        }
+    } else {
+        // If the result is an integer, limit the number of digits before the decimal point
+        if (result.length > maxDigits - 1) {
+            result = result.slice(0, maxDigits - 1);
+        }
+    }
+    
     return result;
 }
 
 function onClickNumberButton(e) {
+    if (equalsButtonClicked === true) {
+        onClickAllClearButton();
+        equalsButtonClicked = false;
+    }
     if (selectedOperand === null) {
         if (displayValue.length < maxDigits) {
             if (displayValue === '0') {
@@ -114,6 +144,15 @@ function onClickNumberButton(e) {
 }
 
 function onClickOperandButton(e) {
+    if (equalsButtonClicked === true) {
+        firstNumber = null;
+        secondNumber = null;
+        selectedOperand = null;
+        previousOperand = null;
+        displayOutput.textContent = displayValue;
+        displayInput.textContent = '';
+        equalsButtonClicked = false;
+    }
 
     if (selectedOperand === null) {
         selectedOperand = e.target.textContent;
@@ -126,7 +165,10 @@ function onClickOperandButton(e) {
     else {
         selectedOperand = e.target.textContent;
         if (firstNumber !== null && secondNumber !== null) {
-            onClickEqualsButton();
+            let result = calculate(previousOperand, firstNumber, secondNumber);
+            firstNumber = result;
+            displayValue = result;
+            secondNumber = null;
             previousOperand = selectedOperand;
         }
 
@@ -163,15 +205,19 @@ function onClickDeleteButton() {
   }
 
 function onClickEqualsButton (){
+    equalsButtonClicked = true;
     // If no operand selected, display current number 
     if (firstNumber !== null && secondNumber !== null) {
         let result = calculate(previousOperand, firstNumber, secondNumber);
-        firstNumber = result;
+        secondNumber = result;
         displayValue = result;
-        secondNumber = null;
     }
 
-    else if (firstNumber == null && secondNumber == null) {
+    else if (firstNumber !== null && secondNumber === null) {
+        displayValue = firstNumber;
+    }
+
+    else if (firstNumber === null && secondNumber === null) {
         displayValue = '0';
     }
 
@@ -201,3 +247,7 @@ function onClickDecimalButton() {
     displayOutput.textContent = displayValue;
 }
 
+function onClickDivideByHundredButton() {
+    displayValue = parseFloat(displayValue) / 100;
+    displayOutput.textContent = displayValue;
+}
